@@ -11,10 +11,12 @@ on:
       - 3.*
       - 4.*
 
+  push:
+  workflow_dispatch:
 jobs:
   build:
     name: Commit message
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Commit messages in format debezium/dbz#xxx
         id: check
@@ -65,10 +67,10 @@ jobs:
             echo "::error:: Github API rate limit exceeded. Skipping commit message check."
             exit 1
           fi
-          
+
           NON_PREFIX_COMMITS=""
           echo "$RESPONSE" | jq -r '.[] | .commit.message | split("\n")[0]' > COMMIT_MSGS.txt
-          
+
           while IFS= read -r line; 
           do
             echo "-> checking: $line"
@@ -103,3 +105,10 @@ jobs:
         with:
           script: |
             throw new Error('Commit has no debezium/dbz#xxx prefix')
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+      fail-fast: false
