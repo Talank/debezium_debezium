@@ -11,6 +11,8 @@ on:
       - 3.*
       - 4.*
 
+  push:
+  workflow_dispatch:
 jobs:
   build:
     name: Commit message
@@ -65,10 +67,10 @@ jobs:
             echo "::error:: Github API rate limit exceeded. Skipping commit message check."
             exit 1
           fi
-          
+
           NON_PREFIX_COMMITS=""
           echo "$RESPONSE" | jq -r '.[] | .commit.message | split("\n")[0]' > COMMIT_MSGS.txt
-          
+
           while IFS= read -r line; 
           do
             echo "-> checking: $line"

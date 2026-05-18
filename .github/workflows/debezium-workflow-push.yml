@@ -2,13 +2,7 @@ name: Build Debezium (Push)
 
 on:
   push:
-    branches:
-      - main
-      - 1.*
-      - 2.*
-      - 3.*
-      - 4.*
-
+  workflow_dispatch:
 env:
   MAVEN_FULL_BUILD_PROJECTS: "\\!debezium-microbenchmark-oracle"
 
@@ -97,7 +91,7 @@ jobs:
   # Approx 1m
   check_style:
     name: "Checkstyle and Formatting"
-    needs: [ build_cache ]
+    needs: [build_cache]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Action
@@ -110,7 +104,7 @@ jobs:
   # Approx 2m
   build_core:
     name: "Core Components Testing"
-    needs: [ check_style ]
+    needs: [check_style]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Action
@@ -124,7 +118,7 @@ jobs:
   # Approx 40m each
   build_mongodb:
     name: "MongoDB"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     uses: ./.github/workflows/connector-mongodb-workflow.yml
     with:
       maven-cache-key: maven-debezium-test-push-build
@@ -133,7 +127,7 @@ jobs:
   # Approx 40m each
   build_mysql:
     name: "MySQL"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     uses: ./.github/workflows/connector-mysql-workflow.yml
     with:
       maven-cache-key: maven-debezium-test-push-build
@@ -142,7 +136,7 @@ jobs:
   # Approx 40m each
   build_mariadb:
     name: "MariaDB"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     uses: ./.github/workflows/connector-mariadb-workflow.yml
     with:
       maven-cache-key: maven-debezium-test-push-build
@@ -151,7 +145,7 @@ jobs:
   # Approx 40m each
   build_postgresql:
     name: "PostgreSQL"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     uses: ./.github/workflows/connector-postgresql-workflow.yml
     with:
       maven-cache-key: maven-debezium-test-push-build
@@ -160,7 +154,7 @@ jobs:
   # Approx 1h 45m
   build_sqlserver:
     name: "SQL Server"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Action
@@ -173,7 +167,7 @@ jobs:
   # Approx 6m
   build_oracle:
     name: "Oracle"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     uses: ./.github/workflows/connector-oracle-workflow.yml
     with:
       maven-cache-key: maven-debezium-test-push-build
@@ -182,7 +176,7 @@ jobs:
   # Approx 2m
   build_schema_generator:
     name: "Schema Generator"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Action
@@ -195,7 +189,7 @@ jobs:
   # Approx 5m
   build_debezium_testing:
     name: "Testing Module"
-    needs: [ check_style, build_core, build_schema_generator ]
+    needs: [check_style, build_core, build_schema_generator]
     if: always() && needs.check_style.result == 'success' && needs.build_core.result == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -209,7 +203,7 @@ jobs:
   # Approx 3m
   build_storage:
     name: "Storage Module"
-    needs: [ check_style, build_core, build_debezium_testing ]
+    needs: [check_style, build_core, build_debezium_testing]
     if: always() && needs.check_style.result == 'success' && needs.build_core.result == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -223,7 +217,7 @@ jobs:
   # Approx 25m
   build_cassandra:
     name: "Cassandra"
-    needs: [ check_style, build_core, build_debezium_server ]
+    needs: [check_style, build_core, build_debezium_server]
     if: always() && needs.check_style.result == 'success' && needs.build_core.result == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -254,7 +248,7 @@ jobs:
   # Approx 1h
   build_db2:
     name: "Db2"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Action (Debezium Core)
@@ -284,7 +278,7 @@ jobs:
   # Approx 45m
   build_informix:
     name: "Informix"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     uses: ./.github/workflows/connector-informix-workflow.yml
     with:
       maven-cache-key: maven-debezium-test-push-build
@@ -293,7 +287,7 @@ jobs:
 
   build_ibmi:
     name: "IBMi"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Action (Debezium Core)
@@ -322,7 +316,7 @@ jobs:
 
   build_ingres:
     name: "Ingres"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Action (Debezium Core)
@@ -350,7 +344,7 @@ jobs:
   # Approx 20m
   build_vitess:
     name: "Vitess"
-    needs: [ check_style, build_core, build_storage ]
+    needs: [check_style, build_core, build_storage]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Action (Debezium Core)
@@ -380,7 +374,7 @@ jobs:
   # Approx 5m
   build_cockroachdb:
     name: "CockroachDB"
-    needs: [ check_style, build_core, build_storage ]
+    needs: [check_style, build_core, build_storage]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Action (Debezium Core)
@@ -410,7 +404,7 @@ jobs:
   # Approx 7m
   build_spanner:
     name: "Spanner"
-    needs: [ check_style, build_core, build_storage ]
+    needs: [check_style, build_core, build_storage]
     if: always() && needs.check_style.result == 'success' && needs.build_core.result == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -441,7 +435,7 @@ jobs:
   # Approx 1m
   build_jdbc:
     name: "JDBC"
-    needs: [ check_style, build_core, build_spanner ]
+    needs: [check_style, build_core, build_spanner]
     uses: ./.github/workflows/connector-jdbc-workflow.yml
     if: always() && needs.check_style.result == 'success' && needs.build_core.result == 'success'
     with:
@@ -450,7 +444,7 @@ jobs:
   # Approx 26m
   build_debezium_server:
     name: "Debezium Server"
-    needs: [ check_style, build_core, build_jdbc ]
+    needs: [check_style, build_core, build_jdbc]
     if: always() && needs.check_style.result == 'success' && needs.build_core.result == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -480,7 +474,7 @@ jobs:
 
   build_ai:
     name: "Debezium AI module"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Action
@@ -492,7 +486,7 @@ jobs:
 
   build_openlineage:
     name: "Debezium OpenLineage module"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Action
@@ -504,7 +498,7 @@ jobs:
 
   build_platform_conductor:
     name: "Debezium Platform - conductor"
-    needs: [ check_style, build_core ]
+    needs: [check_style, build_core]
     uses: ./.github/workflows/platform-conductor-workflow.yml
     with:
       maven-cache-key: maven-debezium-test-push-build
