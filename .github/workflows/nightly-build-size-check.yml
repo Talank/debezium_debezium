@@ -1,11 +1,7 @@
 name: Nightly Build Size Check
 
 on:
-  schedule:
-    # Run at 2 AM UTC every day
-    - cron: '0 2 * * *'
-  workflow_dispatch: # Allow manual trigger
-
+  workflow_dispatch:
 env:
   # Configuration is now centralized in .github/nightly-build-config.yml
   # These are fallback values if the config file is not found
@@ -48,6 +44,8 @@ jobs:
             cassandra/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_db2:
     name: Db2
     runs-on: ubuntu-latest
@@ -81,6 +79,8 @@ jobs:
             db2/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_ibmi:
     name: IBMi
     runs-on: ubuntu-latest
@@ -114,6 +114,8 @@ jobs:
             ibmi/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_ingres:
     name: Ingres
     runs-on: ubuntu-latest
@@ -147,6 +149,8 @@ jobs:
             ingres/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_informix:
     name: Informix
     runs-on: ubuntu-latest
@@ -180,6 +184,8 @@ jobs:
             informix/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_vitess:
     name: Vitess
     runs-on: ubuntu-latest
@@ -213,6 +219,8 @@ jobs:
             vitess/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_spanner:
     name: Spanner
     runs-on: ubuntu-latest
@@ -246,6 +254,8 @@ jobs:
             spanner/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_cockroachdb:
     name: CockroachDB
     runs-on: ubuntu-latest
@@ -279,6 +289,8 @@ jobs:
             cockroachdb/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_server:
     name: "Debezium Server"
     runs-on: ubuntu-latest
@@ -312,6 +324,8 @@ jobs:
             server/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_core:
     name: "Debezium Core"
     runs-on: ubuntu-latest
@@ -347,6 +361,8 @@ jobs:
             core/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_storage:
     name: "Storage"
     runs-on: ubuntu-latest
@@ -367,6 +383,8 @@ jobs:
             debezium-storage/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_openlineage:
     name: "OpenLineage"
     runs-on: ubuntu-latest
@@ -387,6 +405,8 @@ jobs:
             debezium-openlineage/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_ai:
     name: "AI"
     runs-on: ubuntu-latest
@@ -407,6 +427,8 @@ jobs:
             debezium-ai/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_schema_generator:
     name: "Schema Generator"
     runs-on: ubuntu-latest
@@ -427,6 +449,8 @@ jobs:
             debezium-schema-generator/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_testing:
     name: "Testing"
     runs-on: ubuntu-latest
@@ -447,6 +471,8 @@ jobs:
             debezium-testing/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_mysql:
     name: "MySQL"
     runs-on: ubuntu-latest
@@ -467,6 +493,8 @@ jobs:
             debezium-connector-mysql/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_postgres:
     name: "PostgreSQL"
     runs-on: ubuntu-latest
@@ -487,6 +515,8 @@ jobs:
             debezium-connector-postgres/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_oracle:
     name: "Oracle"
     runs-on: ubuntu-latest
@@ -507,6 +537,8 @@ jobs:
             debezium-connector-oracle/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_sqlserver:
     name: "SQL Server"
     runs-on: ubuntu-latest
@@ -527,6 +559,8 @@ jobs:
             debezium-connector-sqlserver/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_mongodb:
     name: "MongoDB"
     runs-on: ubuntu-latest
@@ -547,6 +581,8 @@ jobs:
             debezium-connector-mongodb/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_mariadb:
     name: "MariaDB"
     runs-on: ubuntu-latest
@@ -567,6 +603,8 @@ jobs:
             debezium-connector-mariadb/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   build_jdbc:
     name: "JDBC"
     runs-on: ubuntu-latest
@@ -587,9 +625,14 @@ jobs:
             debezium-connector-jdbc/**/*.zip
           retention-days: 1
 
+    strategy:
+      fail-fast: false
   check-size:
     name: "Check Artifact Size"
-    needs: [build_cassandra, build_db2, build_ibmi, build_ingres, build_informix, build_vitess, build_spanner, build_cockroachdb, build_server, build_core, build_storage, build_openlineage, build_ai, build_schema_generator, build_testing, build_mysql, build_postgres, build_oracle, build_sqlserver, build_mongodb, build_mariadb, build_jdbc]
+    needs: [build_cassandra, build_db2, build_ibmi, build_ingres, build_informix, build_vitess, build_spanner, 
+          build_cockroachdb, build_server, build_core, build_storage, build_openlineage, build_ai, 
+          build_schema_generator, build_testing, build_mysql, build_postgres, build_oracle, build_sqlserver, 
+          build_mongodb, build_mariadb, build_jdbc]
     runs-on: ubuntu-latest
 
     steps:
@@ -782,9 +825,8 @@ jobs:
           maven-central-base: ${{ steps.config.outputs.maven_central_base }}
 
       - name: Send Zulip notification
-        if: |
-          steps.config.outputs.zulip_enabled == 'true' &&
-          (steps.check.outputs.exceeds_threshold == 'true' || steps.check.outputs.maven_central_warnings == 'true')
+        if: |-
+          always()
         uses: zulip/github-actions-zulip/send-message@v1
         with:
           api-key: ${{ secrets.ZULIP_TOKEN }}
@@ -836,3 +878,5 @@ jobs:
             cockroachdb-build
             server-build
           failOnError: false
+    strategy:
+      fail-fast: false
