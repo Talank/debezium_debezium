@@ -1,16 +1,15 @@
 name: JDBC Builds
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       maven-cache-key:
-        description: "The cache key to use to restore/save build caches."
-        required: true
         type: string
+        description: "The cache key to use to restore/save build caches."
+        default: ''
       max-parallel:
-        description: "The maximum number of workers to consume, by default uses all available."
-        required: false
         type: number
-
+        description: "The maximum number of workers to consume, by default uses all available."
+        default: ''
 jobs:
   build-jdbc:
     strategy:
@@ -18,9 +17,12 @@ jobs:
       fail-fast: false
       matrix:
         # Runs JDBC sink tests based on specific target platforms concurrently
-        test-tags: [ "it-mysql,e2e-mysql", "it-postgresql,e2e-postgresql", "it-sqlserver,e2e-sqlserver" ]
+        test-tags: ["it-mysql,e2e-mysql", "it-postgresql,e2e-postgresql", "it-sqlserver,e2e-sqlserver"]
+        os:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
     name: JDBC - ${{ matrix.test-tags }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout

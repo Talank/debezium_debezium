@@ -1,29 +1,31 @@
 name: Informix Builds
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       maven-cache-key:
+        type: string
         description: "The cache key to use to restore/save build caches."
-        required: true
-        type: string
+        default: ''
       checkout-ref:
-        description: "The checkout reference to be used for the Cassandra repository."
-        required: true
         type: string
+        description: "The checkout reference to be used for the Cassandra repository."
+        default: ''
       max-parallel:
-        description: "The maximum number of workers to consume, by default uses all available."
-        required: false
         type: number
-
+        description: "The maximum number of workers to consume, by default uses all available."
+        default: ''
 jobs:
   build-informix:
     strategy:
       max-parallel: ${{ inputs.max-parallel }}
       fail-fast: false
       matrix:
-        profile: [ "assembly,informix12", "assembly,informix14", "assembly,informix15" ]
+        profile: ["assembly,informix12", "assembly,informix14", "assembly,informix15"]
+        os:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
     name: Informix - ${{ matrix.profile }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout (Debezium Core)

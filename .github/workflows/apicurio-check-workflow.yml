@@ -1,20 +1,22 @@
 name: Apicurio PR check workflow
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       maven-cache-key:
-        description: "The cache key to use to restore/save build caches."
-        required: true
         type: string
-
+        description: "The cache key to use to restore/save build caches."
+        default: ''
 jobs:
   mysql-apicurio:
     name: MySQL - Apicurio
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        server-version: [ "9.7" ]
+        server-version: ["9.7"]
+        os: &id001
+          - ubuntu-latest
+          - ubuntu-24.04-arm
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -28,11 +30,12 @@ jobs:
 
   postgresql-apicurio:
     name: PostgreSQL - Apicurio
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        server-version: [ "18"]
+        server-version: ["18"]
+        os: *id001
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -45,11 +48,12 @@ jobs:
 
   mongodb-apicurio:
     name: MongoDB - Apicurio
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        server-version: [ "8.0" ]
+        server-version: ["8.0"]
+        os: *id001
     steps:
       - name: Checkout
         uses: actions/checkout@v6

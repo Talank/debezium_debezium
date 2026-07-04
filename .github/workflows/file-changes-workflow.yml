@@ -1,51 +1,12 @@
 name: Detect Repository Changes
 on:
-  workflow_call:
-    outputs:
-      # Map all file_changes outputs here for calling workflow to access
-      common-changed:
-        value: ${{ jobs.file_changes.outputs.common-changed }}
-      mongodb-changed:
-        value: ${{ jobs.file_changes.outputs.mongodb-changed }}
-      mariadb-changed:
-        value: ${{ jobs.file_changes.outputs.mariadb-changed }}
-      mysql-changed:
-        value: ${{ jobs.file_changes.outputs.mysql-changed }}
-      postgresql-changed:
-        value: ${{ jobs.file_changes.outputs.postgresql-changed }}
-      oracle-changed:
-        value: ${{ jobs.file_changes.outputs.oracle-changed }}
-      sqlserver-changed:
-        value: ${{ jobs.file_changes.outputs.sqlserver-changed }}
-      jdbc-changed:
-        value: ${{ jobs.file_changes.outputs.jdbc-changed }}
-      outbox-changed:
-        value: ${{ jobs.file_changes.outputs.outbox-changed }}
-      schema-generator-changed:
-        value: ${{ jobs.file_changes.outputs.schema-generator-changed }}
-      debezium-testing-changed:
-        value: ${{ jobs.file_changes.outputs.debezium-testing-changed }}
-      debezium-testing-mongodb-changed:
-        value: ${{ jobs.file_changes.outputs.debezium-testing-mongodb-changed }}
-      mysql-ddl-parser-changed:
-        value: ${{ jobs.file_changes.outputs.mysql-ddl-parser-changed }}
-      oracle-ddl-parser-changed:
-        value: ${{ jobs.file_changes.outputs.oracle-ddl-parser-changed }}
-      mariadb-ddl-parser-changed:
-        value: ${{ jobs.file_changes.outputs.mariadb-ddl-parser-changed }}
-      documentation-only-changed:
-        value: ${{ jobs.file_changes.outputs.documentation-only-changed }}
-      storage-only-changed:
-        value: ${{ jobs.file_changes.outputs.storage-only-changed }}
-      extensions-changed:
-        value: ${{ jobs.file_changes.outputs.extensions-changed }}
-
+  workflow_dispatch:
 jobs:
   # This job is responsible for inspecting the changes in the repository and setting specific output variables
   # that subsequent jobs can use to determine whether a particular job should be skipped or included.
   file_changes:
     name: "Detect Repository changes"
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     outputs:
       common-changed: ${{ steps.changed-files-common.outputs.any_changed }}
       mongodb-changed: ${{ steps.changed-files-mongodb.outputs.any_changed }}
@@ -224,5 +185,11 @@ jobs:
         id: changed-files-storage
         uses: tj-actions/changed-files@v47.0.6
         with:
-          files: |
+          files: |-
             debezium-storage/**
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+      fail-fast: false

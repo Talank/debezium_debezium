@@ -3,18 +3,11 @@ on:
   # ATTENTION: See https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
   # re security implications of using this trigger; in particular, no code from PR branches must
   # be executed in any flows triggered by it
-  pull_request_target:
-    branches:
-      - main
-      - 1.*
-      - 2.*
-      - 3.*
-      - 4.*
-
+  workflow_dispatch:
 jobs:
   build:
     name: Commit message
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Commit messages in format debezium/dbz#xxx
         id: check
@@ -65,10 +58,10 @@ jobs:
             echo "::error:: Github API rate limit exceeded. Skipping commit message check."
             exit 1
           fi
-          
+
           NON_PREFIX_COMMITS=""
           echo "$RESPONSE" | jq -r '.[] | .commit.message | split("\n")[0]' > COMMIT_MSGS.txt
-          
+
           while IFS= read -r line; 
           do
             echo "-> checking: $line"
@@ -89,7 +82,7 @@ jobs:
           fi
 
       - name: Create Comment
-        if: ${{ steps.check.outputs.PREFIX_COMMITS == 'false' }}
+        if: always()
         uses: peter-evans/create-or-update-comment@v5
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -97,9 +90,15 @@ jobs:
             Hi @${{ github.event.pull_request.user.login }}, thanks for your contribution. Please prefix the commit message(s) with the [debezium/dbz#xxx GitHub issue key](https://github.com/debezium/debezium/blob/main/CONTRIBUTING.md#making-changes).
 
       - name: Check failure
-        if: ${{ steps.check.outputs.PREFIX_COMMITS == 'false' }}
+        if: always()
         uses: actions/github-script@v9
         continue-on-error: false
         with:
           script: |
             throw new Error('Commit has no debezium/dbz#xxx prefix')
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+      fail-fast: false

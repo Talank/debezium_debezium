@@ -1,25 +1,27 @@
 name: PostgreSQL Builds
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       maven-cache-key:
-        description: "The cache key to use to restore/save build caches."
-        required: true
         type: string
+        description: "The cache key to use to restore/save build caches."
+        default: ''
       max-parallel:
-        description: "The maximum number of workers to consume, by default uses all available."
-        required: false
         type: number
-
+        description: "The maximum number of workers to consume, by default uses all available."
+        default: ''
 jobs:
   build-posgresql:
     strategy:
       max-parallel: ${{ inputs.max-parallel }}
       fail-fast: false
       matrix:
-        profile: [ "assembly,postgres-14", "assembly,postgres-18,pgoutput-decoder" ]
+        profile: ["assembly,postgres-14", "assembly,postgres-18,pgoutput-decoder"]
+        os:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
     name: PostgreSQL - ${{ matrix.profile }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
